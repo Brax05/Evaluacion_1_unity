@@ -114,20 +114,22 @@ de los mandos (agarrar / soltar / gatillo) al GameManager.
 [XRToggle.cs](Assets/Scripts/XR/XRToggle.cs) alterna en tiempo de ejecución entre
 el modo VR (rig + simulador) y el jugador normal de teclado. La escena arranca
 con el jugador normal; **pulsa `M` para activar el VR** y `M` otra vez para
-volver. Se coloca automáticamente al usar la herramienta.
+volver.
 
-**Montaje automático:** en la barra de menús de Unity hay una herramienta
-**`Herramientas XR`** ([XRSetupTool.cs](Assets/Scripts/XR/Editor/XRSetupTool.cs)):
+**Montaje manual en la Sala 2:**
 
-- **`4. Montar demo VR en la Sala 2`** → abre `Sala_2`, coloca el rig VR
-  (`XR Origin`), el simulador y el gestor del toggle `M`, hace agarrables **las
-  mismas cajas de la sala** (tag `Caja`) y guarda la escena.
-- Las opciones 1-3 permiten montar las piezas por separado en la escena abierta.
+1. Arrastra a la escena los prefabs `XR Origin (XR Rig)` y `XR Device Simulator`
+   (en `Assets/Samples/XR Interaction Toolkit/3.5.1/...`).
+2. Crea un objeto vacío con el componente `XRToggle` y asígnale el rig, el
+   simulador, el jugador de teclado y la cámara normal (o deja los campos vacíos:
+   los autocompleta buscándolos en la escena).
+3. A las cajas de la sala (tag `Caja`) añádeles `XR Grab Interactable` +
+   `XRGrabReporter`, **sin quitarles** `PushableBox`.
 
 **Las cajas funcionan con ambas mecánicas:** son las mismas cajas de empujar /
-entregar de la sala; al añadirles `XR Grab Interactable` + `XRGrabReporter` (sin
-quitarles `PushableBox`) se pueden **empujar** con el jugador normal **y agarrar**
-con los mandos VR.
+entregar de la sala; con `XR Grab Interactable` + `XRGrabReporter` (y su
+`PushableBox`) se pueden **empujar** con el jugador normal **y agarrar** con los
+mandos VR.
 
 **Probar sin casco:** con el **XR Device Simulator** se controlan la cámara y los
 mandos con teclado/ratón dentro del editor. Pulsa **Play** en `Sala_2`, luego `M`
