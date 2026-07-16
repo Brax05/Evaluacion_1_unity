@@ -44,6 +44,22 @@ Orden en **File ▸ Build Settings** (índices):
 
 ---
 
+## Capturas del Juego
+
+### Menú Principal
+![Menú Principal](images/menu.png)
+
+### Sala 1 (Reto de recolección y palanca)
+![Sala 1](images/sala_1.png)
+
+### Sala 2 (Reto de entrega de cajas con físicas/VR)
+![Sala 2](images/sala_2.png)
+
+### Sala 3 (Reto de placa de presión y escala de objeto)
+![Sala 3](images/sala_3.png)
+
+---
+
 ## Rutas del código
 
 Todos los scripts están en [Assets/Scripts/](Assets/Scripts/), organizados por carpeta:
