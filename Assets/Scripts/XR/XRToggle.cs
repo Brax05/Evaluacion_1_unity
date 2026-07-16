@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Alterna entre el modo VR (rig XR + simulador) y el jugador normal de teclado
@@ -17,6 +18,8 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class XRToggle : MonoBehaviour
 {
+    private static XRToggle instance;
+
     [Header("Referencias (opcionales: se autocompletan si se dejan vacias)")]
     [Tooltip("El rig VR de la escena (XR Origin (XR Rig)).")]
     [SerializeField] private GameObject xrRig;
@@ -35,20 +38,51 @@ public class XRToggle : MonoBehaviour
 
     private bool vrActivo;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void InicializarAutomaticamente()
+    {
+        // Si ya hay un XRToggle en la escena, no creamos duplicados
+        if (FindFirstObjectByType<XRToggle>(FindObjectsInactive.Include) == null)
+        {
+            GameObject go = new GameObject("XR Toggle Manager (Auto)");
+            go.AddComponent<XRToggle>();
+        }
+    }
+
     private void Awake()
     {
-        // Autocompletar referencias si no se asignaron en el Inspector.
-        if (xrRig == null) xrRig = BuscarPorNombre("XR Origin (XR Rig)");
-        if (xrSimulador == null) xrSimulador = BuscarPorNombre("XR Device Simulator");
-        if (jugadorTeclado == null)
+        // Patrón Singleton persistente
+        if (instance != null && instance != this)
         {
-            var spc = FindFirstObjectByType<SimplePlayerController>(FindObjectsInactive.Include);
-            if (spc != null) jugadorTeclado = spc.gameObject;
+            Destroy(gameObject);
+            return;
         }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // Suscribirse al evento de cambio de escena para volver a buscar referencias
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        BuscarReferencias();
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        BuscarReferencias();
+        
+        // Al cargar una escena, aplicar el estado inicial deseado.
+        AplicarEstado(empezarEnVR);
     }
 
     private void Start()
     {
+        // Si es el primer arranque, aplicamos el estado inicial.
         AplicarEstado(empezarEnVR);
     }
 
@@ -58,7 +92,37 @@ public class XRToggle : MonoBehaviour
         if (teclado == null) return;
 
         if (teclado[teclaToggle].wasPressedThisFrame)
+        {
+            // Rebuscar referencias por si se destruyó o cambió algo dinámicamente
+            BuscarReferencias();
             AplicarEstado(!vrActivo);
+        }
+    }
+
+    private void BuscarReferencias()
+    {
+        // Buscar el Rig XR
+        if (xrRig == null) xrRig = BuscarPorNombre("XR Origin (XR Rig)");
+        
+        // Buscar el Simulador
+        if (xrSimulador == null) xrSimulador = BuscarPorNombre("XR Device Simulator");
+        
+        // Buscar el jugador de teclado
+        if (jugadorTeclado == null)
+        {
+            var spc = FindFirstObjectByType<SimplePlayerController>(FindObjectsInactive.Include);
+            if (spc != null) jugadorTeclado = spc.gameObject;
+        }
+
+        // Buscar cámara normal si está separada del jugador
+        if (camaraNormal == null)
+        {
+            var cam = GameObject.FindWithTag("MainCamera");
+            if (cam != null && (jugadorTeclado == null || !cam.transform.IsChildOf(jugadorTeclado.transform)))
+            {
+                camaraNormal = cam;
+            }
+        }
     }
 
     /// <summary>Enciende/apaga el VR. Tambien es llamable desde un UnityEvent.</summary>
@@ -66,10 +130,31 @@ public class XRToggle : MonoBehaviour
     {
         vrActivo = vr;
 
+        // Asegurarse de tener las referencias actualizadas antes de aplicar estado
+        BuscarReferencias();
+
         if (xrRig != null) xrRig.SetActive(vr);
         if (xrSimulador != null) xrSimulador.SetActive(vr);
         if (jugadorTeclado != null) jugadorTeclado.SetActive(!vr);
         if (camaraNormal != null) camaraNormal.SetActive(!vr);
+
+        // Controlar el estado del cursor del ratón según el modo
+        if (vr)
+        {
+            // En modo VR, desbloquear el cursor para interactuar con el simulador
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            // En modo teclado, bloquear el cursor para el controlador de primera persona
+            // Solo si el jugador de teclado está activo en esta escena
+            if (jugadorTeclado != null && jugadorTeclado.activeSelf)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
 
         string txt = vr
             ? "Modo VR ACTIVADO (pulsa M para volver al jugador normal)."
