@@ -30,7 +30,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject panelFinal;
 
     [Header("Textos fijos")]
-    [SerializeField] private string nombrePrototipo = "BODEGA XR";
+    [SerializeField] private string nombrePrototipo = "ESCAPE ROOM XR";
     [TextArea]
     [SerializeField] private string instrucciones =
         "WASD / mando: moverse\nClic o gatillo: interactuar\nRecoge los paquetes y abre el porton.";

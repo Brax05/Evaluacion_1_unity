@@ -3272,7 +3272,7 @@ MonoBehaviour:
   mensajeTexto: {fileID: 500861501}
   barraProgreso: {fileID: 0}
   panelFinal: {fileID: 0}
-  nombrePrototipo: BODEGA XR
+  nombrePrototipo: ESCAPE ROOM XR
   instrucciones: 'WASD / mando: moverse
 
     Clic o gatillo: interactuar

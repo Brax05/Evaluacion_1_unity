@@ -257,10 +257,10 @@ MonoBehaviour:
   tagJugador: Player
   nombreEscenaSiguiente: 
   esSalaFinal: 1
-  nombreEscenaVictoria: 
+  nombreEscenaVictoria: Menu
   empiezaBloqueada: 0
-  retardo: 1.2
-  mensajeAlSalir: Sala superada. Avanzando a la siguiente...
+  retardo: 2.5
+  mensajeAlSalir: GANASTE! Has escapado de la ultima sala. Volviendo al menu principal...
   onSalaFinal:
     m_PersistentCalls:
       m_Calls: []
@@ -1000,7 +1000,7 @@ MonoBehaviour:
   mensajeTexto: {fileID: 2097842877}
   barraProgreso: {fileID: 0}
   panelFinal: {fileID: 0}
-  nombrePrototipo: BODEGA XR
+  nombrePrototipo: ESCAPE ROOM XR
   instrucciones: 'WASD / mando: moverse
 
     Clic o gatillo: interactuar

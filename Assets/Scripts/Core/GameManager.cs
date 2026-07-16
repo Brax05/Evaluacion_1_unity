@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 
-/// prototipo "Bodega XR".
+/// prototipo "Escape Room XR".
 /// Lleva la cuenta de paquetes recogidos, controla los objetivos y avisa
 /// al resto del juego mediante eventos (relacion clara accion -> respuesta).
 ///
