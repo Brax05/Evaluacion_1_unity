@@ -110,14 +110,21 @@ El proyecto incluye el paquete **XR Interaction Toolkit**, los samples
 [XRGrabReporter.cs](Assets/Scripts/XR/XRGrabReporter.cs), que reenvía los eventos
 de los mandos (agarrar / soltar / gatillo) al GameManager.
 
+**Activar/desactivar VR con la tecla M:** el script
+[XRToggle.cs](Assets/Scripts/XR/XRToggle.cs) alterna en tiempo de ejecución entre
+el modo VR (rig + simulador) y el jugador normal de teclado. La escena arranca
+con el jugador normal; **pulsa `M` para activar el VR** y `M` otra vez para
+volver. Se coloca automáticamente al usar la herramienta.
+
 **Montaje automático:** en la barra de menús de Unity hay una herramienta
 **`Herramientas XR`** ([XRSetupTool.cs](Assets/Scripts/XR/Editor/XRSetupTool.cs)):
 
 - **`4. Montar demo VR en la Sala 2`** → abre `Sala_2`, coloca el rig VR
-  (`XR Origin`), el simulador y una caja agarrable, y guarda la escena.
+  (`XR Origin`), el simulador, la caja agarrable y el gestor del toggle `M`, y
+  guarda la escena.
 - Las opciones 1-3 permiten montar las piezas por separado en la escena abierta.
 
 **Probar sin casco:** con el **XR Device Simulator** se controlan la cámara y los
-mandos con teclado/ratón dentro del editor. Pulsa **Play** en `Sala_2`, agarra la
-caja y suéltala sobre una `DeliveryZone`.
+mandos con teclado/ratón dentro del editor. Pulsa **Play** en `Sala_2`, luego `M`
+para entrar en VR, agarra la caja y suéltala sobre una `DeliveryZone`.
 

@@ -33,9 +33,9 @@ public static class XRSetupTool
     private const string RutaSala2 = "Assets/Scenes/Sala_2.unity";
 
     // ---------------------------------------------------------------------
-    // 1) Configurar la escena: rig + simulador + apagar camara/jugador viejo
+    // 1) Configurar la escena: rig + simulador + gestor de toggle (tecla M)
     // ---------------------------------------------------------------------
-    [MenuItem(MenuRoot + "1. Configurar escena XR (rig + simulador)", priority = 0)]
+    [MenuItem(MenuRoot + "1. Configurar escena XR (rig + simulador + toggle M)", priority = 0)]
     public static GameObject ConfigurarEscenaXR()
     {
         GameObject rig = InstanciarPrefabPorNombre(NombreRig);
@@ -43,27 +43,41 @@ public static class XRSetupTool
 
         GameObject sim = InstanciarPrefabPorNombre(NombreSimulador);
 
-        // Apagar el jugador de prueba (incluye su camara) para que no compita
-        // con el rig XR.
-        foreach (var spc in Object.FindObjectsByType<SimplePlayerController>(FindObjectsSortMode.None))
+        // Localizar el jugador de teclado (para el toggle, NO lo borramos: la
+        // tecla M alternara entre el y el rig VR).
+        GameObject jugador = null;
+        var spc = Object.FindFirstObjectByType<SimplePlayerController>(FindObjectsInactive.Include);
+        if (spc != null) jugador = spc.gameObject;
+
+        // Localizar una camara "normal" suelta (la Main Camera) que no sea del
+        // rig ni parte del jugador, para que el toggle tambien la controle.
+        GameObject camaraNormal = null;
+        foreach (var cam in Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
-            Undo.RecordObject(spc.gameObject, "Apagar jugador de prueba");
-            spc.gameObject.SetActive(false);
+            if (cam.transform.IsChildOf(rig.transform)) continue;
+            if (jugador != null && cam.transform.IsChildOf(jugador.transform)) continue;
+            camaraNormal = cam.gameObject;
+            break;
         }
 
-        // Apagar cualquier camara suelta que NO forme parte del rig
-        // (normalmente la "Main Camera" de la escena).
-        foreach (var cam in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))
+        // Crear (o reutilizar) el gestor de toggle y asignarle las referencias.
+        var toggle = Object.FindFirstObjectByType<XRToggle>(FindObjectsInactive.Include);
+        if (toggle == null)
         {
-            if (rig != null && cam.transform.IsChildOf(rig.transform)) continue;
-            Undo.RecordObject(cam.gameObject, "Apagar camara antigua");
-            cam.gameObject.SetActive(false);
+            var mgr = new GameObject("XR Toggle Manager");
+            Undo.RegisterCreatedObjectUndo(mgr, "Crear XR Toggle Manager");
+            toggle = Undo.AddComponent<XRToggle>(mgr);
         }
+        toggle.ConfigurarReferencias(rig, sim, jugador, camaraNormal);
+        EditorUtility.SetDirty(toggle);
+
+        // Estado por defecto: VR APAGADO (se activa con M en Play).
+        rig.SetActive(false);
+        if (sim != null) sim.SetActive(false);
 
         MarcarEscenaSucia();
-        Selection.activeGameObject = rig;
-        Debug.Log("[XRSetupTool] Escena XR configurada: rig + simulador listos. " +
-                  "Pulsa Play y usa el simulador (raton/teclado) para probar sin casco.", rig);
+        Selection.activeGameObject = toggle.gameObject;
+        Debug.Log("[XRSetupTool] Escena XR lista. En Play, pulsa M para activar/desactivar el VR.", toggle);
         return rig;
     }
 
@@ -127,7 +141,7 @@ public static class XRSetupTool
             caja.transform.position = rig.transform.position + rig.transform.forward * 0.6f + Vector3.up * 0.9f;
 
         MarcarEscenaSucia();
-        Debug.Log("[XRSetupTool] Demo XR lista. Pulsa Play y agarra la caja con el simulador.");
+        Debug.Log("[XRSetupTool] Demo XR lista. En Play pulsa M para activar el VR y agarra la caja con el simulador.");
     }
 
     // ---------------------------------------------------------------------
@@ -154,7 +168,7 @@ public static class XRSetupTool
     }
 
     // Validaciones: los menus se ven en gris si faltan los samples.
-    [MenuItem(MenuRoot + "1. Configurar escena XR (rig + simulador)", validate = true)]
+    [MenuItem(MenuRoot + "1. Configurar escena XR (rig + simulador + toggle M)", validate = true)]
     private static bool ValidarSamples() => BuscarPrefabPorNombre(NombreRig) != null;
 
     [MenuItem(MenuRoot + "4. Montar demo VR en la Sala 2", validate = true)]
