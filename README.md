@@ -120,11 +120,16 @@ volver. Se coloca automáticamente al usar la herramienta.
 **`Herramientas XR`** ([XRSetupTool.cs](Assets/Scripts/XR/Editor/XRSetupTool.cs)):
 
 - **`4. Montar demo VR en la Sala 2`** → abre `Sala_2`, coloca el rig VR
-  (`XR Origin`), el simulador, la caja agarrable y el gestor del toggle `M`, y
-  guarda la escena.
+  (`XR Origin`), el simulador y el gestor del toggle `M`, hace agarrables **las
+  mismas cajas de la sala** (tag `Caja`) y guarda la escena.
 - Las opciones 1-3 permiten montar las piezas por separado en la escena abierta.
+
+**Las cajas funcionan con ambas mecánicas:** son las mismas cajas de empujar /
+entregar de la sala; al añadirles `XR Grab Interactable` + `XRGrabReporter` (sin
+quitarles `PushableBox`) se pueden **empujar** con el jugador normal **y agarrar**
+con los mandos VR.
 
 **Probar sin casco:** con el **XR Device Simulator** se controlan la cámara y los
 mandos con teclado/ratón dentro del editor. Pulsa **Play** en `Sala_2`, luego `M`
-para entrar en VR, agarra la caja y suéltala sobre una `DeliveryZone`.
+para entrar en VR, agarra una caja y suéltala sobre una `DeliveryZone`.
 

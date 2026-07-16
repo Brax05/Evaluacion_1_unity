@@ -17,8 +17,9 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 /// Opciones:
 ///   - Configurar escena XR: mete el rig VR + el simulador y apaga la camara /
 ///     el jugador de prueba.
-///   - Hacer objeto agarrable: convierte el objeto seleccionado (o crea una
-///     caja) en un agarrable XR con el reporter de eventos.
+///   - Hacer agarrables las cajas: a las mismas cajas de la sala (tag "Caja")
+///     les anade el agarre XR sin quitarles lo de empujar, para que funcionen
+///     con ambas mecanicas.
 ///   - Montar demo completa: hace las dos cosas de golpe en la escena abierta.
 ///   - Montar demo VR en la Sala 2: abre Sala_2, monta la demo y la guarda.
 /// </summary>
@@ -82,26 +83,34 @@ public static class XRSetupTool
     }
 
     // ---------------------------------------------------------------------
-    // 2) Hacer agarrable el objeto seleccionado (o crear una caja)
+    // 2) Hacer agarrables las cajas que YA existen en la escena (tag "Caja").
+    //    Son las mismas cajas de empujar/entregar, asi funcionan con ambas
+    //    mecanicas: empujarlas (fisica) y agarrarlas (XR).
     // ---------------------------------------------------------------------
-    [MenuItem(MenuRoot + "2. Hacer objeto agarrable (XR)", priority = 20)]
-    public static GameObject HacerAgarrable()
+    [MenuItem(MenuRoot + "2. Hacer agarrables las cajas de la escena (tag Caja)", priority = 20)]
+    public static int HacerCajasAgarrables()
     {
-        GameObject go = Selection.activeGameObject;
+        var cajas = GameObject.FindGameObjectsWithTag("Caja");
+        if (cajas.Length == 0)
+        {
+            Debug.LogWarning("[XRSetupTool] No se encontraron objetos con el tag 'Caja' en la escena.");
+            return 0;
+        }
 
-        // Si no hay nada seleccionado, creamos una caja de ejemplo.
-        if (go == null)
-        {
-            go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.name = "Caja Agarrable XR";
-            go.transform.localScale = Vector3.one * 0.3f;
-            go.transform.position = new Vector3(0f, 1f, 1f);
-            Undo.RegisterCreatedObjectUndo(go, "Crear caja agarrable");
-        }
-        else
-        {
-            Undo.RegisterFullObjectHierarchyUndo(go, "Hacer agarrable");
-        }
+        foreach (var caja in cajas)
+            HacerAgarrable(caja);
+
+        MarcarEscenaSucia();
+        Debug.Log($"[XRSetupTool] {cajas.Length} caja(s) ahora son agarrables en XR (siguen siendo empujables).");
+        return cajas.Length;
+    }
+
+    /// <summary>Anade a un objeto los componentes para agarrarlo en XR, sin
+    /// tocar los que ya tenga (PushableBox, etc.).</summary>
+    public static GameObject HacerAgarrable(GameObject go)
+    {
+        if (go == null) return null;
+        Undo.RegisterFullObjectHierarchyUndo(go, "Hacer agarrable");
 
         // Collider (necesario para agarrarlo)
         if (go.GetComponent<Collider>() == null)
@@ -119,29 +128,22 @@ public static class XRSetupTool
         if (go.GetComponent<XRGrabReporter>() == null)
             Undo.AddComponent<XRGrabReporter>(go);
 
-        MarcarEscenaSucia();
-        Selection.activeGameObject = go;
-        Debug.Log($"[XRSetupTool] '{go.name}' ahora es agarrable en XR.", go);
         return go;
     }
 
     // ---------------------------------------------------------------------
-    // 3) Todo en uno: escena XR + una caja agarrable de ejemplo
+    // 3) Todo en uno: escena XR + hacer agarrables las cajas existentes
     // ---------------------------------------------------------------------
-    [MenuItem(MenuRoot + "3. Montar demo completa (rig + simulador + caja)", priority = 40)]
+    [MenuItem(MenuRoot + "3. Montar demo completa (rig + simulador + cajas)", priority = 40)]
     public static void MontarDemoCompleta()
     {
         GameObject rig = ConfigurarEscenaXR();
         if (rig == null) return;
 
-        // Colocamos la caja delante del rig para tenerla a mano.
-        Selection.activeGameObject = null;
-        GameObject caja = HacerAgarrable();
-        if (caja != null)
-            caja.transform.position = rig.transform.position + rig.transform.forward * 0.6f + Vector3.up * 0.9f;
+        HacerCajasAgarrables();
 
         MarcarEscenaSucia();
-        Debug.Log("[XRSetupTool] Demo XR lista. En Play pulsa M para activar el VR y agarra la caja con el simulador.");
+        Debug.Log("[XRSetupTool] Demo XR lista. En Play pulsa M para activar el VR y agarra las mismas cajas de la sala con el simulador.");
     }
 
     // ---------------------------------------------------------------------
