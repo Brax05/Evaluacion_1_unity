@@ -100,9 +100,24 @@ Todos en [Assets/Prefabs/](Assets/Prefabs/):
 
 ---
 
-## Integración XR/VR (Paso 8)
+## Integración XR/VR (Paso 8) — solo en la Sala 2
 
-El proyecto incluye el paquete **XR Interaction Toolkit** y el script
-`XRGrabReporter` para interacciones con mandos VR. Para probar **sin casco** se
-usa el **XR Device / Interaction Simulator** dentro del editor de Unity.
+El VR se usa **únicamente en la Sala 2**. Las salas 1 y 3 se juegan con el
+jugador normal de teclado/ratón (`SimplePlayerController`).
+
+El proyecto incluye el paquete **XR Interaction Toolkit**, los samples
+(**Starter Assets** + **XR Device Simulator**) y el script
+[XRGrabReporter.cs](Assets/Scripts/XR/XRGrabReporter.cs), que reenvía los eventos
+de los mandos (agarrar / soltar / gatillo) al GameManager.
+
+**Montaje automático:** en la barra de menús de Unity hay una herramienta
+**`Herramientas XR`** ([XRSetupTool.cs](Assets/Scripts/XR/Editor/XRSetupTool.cs)):
+
+- **`4. Montar demo VR en la Sala 2`** → abre `Sala_2`, coloca el rig VR
+  (`XR Origin`), el simulador y una caja agarrable, y guarda la escena.
+- Las opciones 1-3 permiten montar las piezas por separado en la escena abierta.
+
+**Probar sin casco:** con el **XR Device Simulator** se controlan la cámara y los
+mandos con teclado/ratón dentro del editor. Pulsa **Play** en `Sala_2`, agarra la
+caja y suéltala sobre una `DeliveryZone`.
 

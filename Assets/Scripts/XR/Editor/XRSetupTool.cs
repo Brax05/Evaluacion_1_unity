@@ -11,12 +11,16 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 /// (Starter Assets y XR Device Simulator), es decir la carpeta
 /// Assets/Samples/XR Interaction Toolkit/...
 ///
+/// En este proyecto el VR se usa SOLO en la Sala 2 (las salas 1 y 3 usan el
+/// jugador de teclado). Para eso esta la opcion 4, que lo monta directamente ahi.
+///
 /// Opciones:
 ///   - Configurar escena XR: mete el rig VR + el simulador y apaga la camara /
 ///     el jugador de prueba.
 ///   - Hacer objeto agarrable: convierte el objeto seleccionado (o crea una
 ///     caja) en un agarrable XR con el reporter de eventos.
-///   - Montar demo completa: hace las dos cosas de golpe.
+///   - Montar demo completa: hace las dos cosas de golpe en la escena abierta.
+///   - Montar demo VR en la Sala 2: abre Sala_2, monta la demo y la guarda.
 /// </summary>
 public static class XRSetupTool
 {
@@ -24,6 +28,9 @@ public static class XRSetupTool
 
     private const string NombreRig = "XR Origin (XR Rig)";
     private const string NombreSimulador = "XR Device Simulator";
+
+    // El VR se usa SOLO en la Sala 2. Las salas 1 y 3 usan el jugador de teclado.
+    private const string RutaSala2 = "Assets/Scenes/Sala_2.unity";
 
     // ---------------------------------------------------------------------
     // 1) Configurar la escena: rig + simulador + apagar camara/jugador viejo
@@ -123,9 +130,35 @@ public static class XRSetupTool
         Debug.Log("[XRSetupTool] Demo XR lista. Pulsa Play y agarra la caja con el simulador.");
     }
 
+    // ---------------------------------------------------------------------
+    // 4) Directo a lo que pide el proyecto: montar la demo VR en la SALA 2
+    //    (abre la escena Sala_2, monta rig + simulador + caja y la guarda).
+    // ---------------------------------------------------------------------
+    [MenuItem(MenuRoot + "4. Montar demo VR en la Sala 2", priority = 60)]
+    public static void MontarEnSala2()
+    {
+        // Guarda cambios pendientes de la escena actual antes de cambiar.
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            return;
+
+        if (AssetDatabase.LoadAssetAtPath<Object>(RutaSala2) == null)
+        {
+            Debug.LogError($"[XRSetupTool] No se encontro la escena '{RutaSala2}'.");
+            return;
+        }
+
+        var escena = EditorSceneManager.OpenScene(RutaSala2, OpenSceneMode.Single);
+        MontarDemoCompleta();
+        EditorSceneManager.SaveScene(escena);
+        Debug.Log("[XRSetupTool] Demo VR montada y guardada en la Sala 2.");
+    }
+
     // Validaciones: los menus se ven en gris si faltan los samples.
     [MenuItem(MenuRoot + "1. Configurar escena XR (rig + simulador)", validate = true)]
     private static bool ValidarSamples() => BuscarPrefabPorNombre(NombreRig) != null;
+
+    [MenuItem(MenuRoot + "4. Montar demo VR en la Sala 2", validate = true)]
+    private static bool ValidarSala2() => BuscarPrefabPorNombre(NombreRig) != null;
 
     // ---------------------------------------------------------------------
     // Utilidades internas
